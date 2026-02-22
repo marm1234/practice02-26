@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div id="todo-list">
+        <div class="header">
+            <h1>{{ header }}</h1>
+            <button v-if="editing" @click="doEdit(false)" class="btn btn-cancel">Cancel</button>
+            <button v-else @click="doEdit(true)" class="btn btn-primary">Add Task</button>
+        </div>
+        <div v-if="editing" class="add-task-form">
+            <input
+                @keyup.enter ="saveTask" 
+                v-model="newTask" 
+                type="text"
+                placeholder="Add a task"
+            >            
+            <label>
+                <input type="checkbox" v-model="newTaskHighPriority">
+                High Priority
+            </label>
+            <button
+                v-bind:disabled="newTask.length === 0"
+                @click="saveTask"
+                class="btn btn-primary"
+            >
+                Save Task
+            </button>
+        </div>
+        <p v-if="tasks.length === 0">Great job! All tasks are completed!</p>
+        <ul>
+            <li 
+                v-for="task in tasks" 
+                @click="toggleCompleted(task)"
+                :key="task.id"
+                :class="{strikeout: task.completed, priority: task.highPriority}"
+                class="static-class"
+            >{{ task.label }}</li>     
+        </ul>
+    </div>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script>
+        const todoListApp = Vue.createApp({
+            data() {
+                return {
+                    header: "To-Do List App",
+                    editing: false,
+                    newTask: '',
+                    newTaskHighPriority: false,
+                    tasks: [
+                        {id: 1, label: "Walk the dog", completed: true, highPriority: false},
+                        {id: 2, label: "Finish the project", completed: false, highPriority: true},
+                        {id: 3, label: "Call the client", completed: false, highPriority: true},
+                        {id: 4, label: "Meeting at 1 PM", completed: false, highPriority: false}
+                    ]
+                }
+            },
+            computed: {
+                reversedTasks() {
+                    return [...this.tasks].reverse()
+                }
+            },
+            methods: {
+                saveTask() {
+                    this.tasks.push({
+                        id: this.tasks.length + 1, 
+                        label: this.newTask,
+                        completed: false,
+                        highPriority: this.newTaskHighPriority
+                    })
+                    this.newTask = ""
+                    this.newTaskHighPriority = false
+                },
+                doEdit(editing) {
+                    this.editing = editing
+                    this.newTask = ""
+                    this.newTaskHighPriority = false
+                },
+                toggleCompleted(task) {
+                    task.completed = !task.completed
+                }
+            }
+        })
+        .mount('#todo-list')
+    </script>
+</body>
+</html>
